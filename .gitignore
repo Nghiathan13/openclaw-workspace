@@ -1,8 +1,10 @@
-# OpenClaw customer-specific files
+# OpenClaw customer-generated identity files
 SOUL.md
 IDENTITY.md
 USER.md
+
+# OpenClaw local state
 openclaw-workspace-state.json
 
-# Customer/current user topics
+# Customer-specific topic config
 morning-report-audio/topics/current-topics.md
