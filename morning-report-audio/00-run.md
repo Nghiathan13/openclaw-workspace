@@ -6,13 +6,13 @@ File này chỉ dùng để điều phối workflow tạo Morning Information Re
 
 ## Execution order
 
-1. `/home/node/.openclaw/workspace/usecases/morning-report/01-topics.md`
-2. `/home/node/.openclaw/workspace/usecases/morning-report/02-source-plan.md`
-3. `/home/node/.openclaw/workspace/usecases/morning-report/03-search-rules.md`
-4. `/home/node/.openclaw/workspace/usecases/morning-report/04-source-scoring.md`
-5. `/home/node/.openclaw/workspace/usecases/morning-report/05-analysis-rules.md`
-6. `/home/node/.openclaw/workspace/usecases/morning-report/06-report-format.md`
-7. `/home/node/.openclaw/workspace/usecases/morning-report/07-output-rules.md`
+1. `/home/node/.openclaw/workspace/morning-report-audio/01-topics.md`
+2. `/home/node/.openclaw/workspace/morning-report-audio/02-source-plan.md`
+3. `/home/node/.openclaw/workspace/morning-report-audio/03-search-rules.md`
+4. `/home/node/.openclaw/workspace/morning-report-audio/04-source-scoring.md`
+5. `/home/node/.openclaw/workspace/morning-report-audio/05-analysis-rules.md`
+6. `/home/node/.openclaw/workspace/morning-report-audio/06-report-format.md`
+7. `/home/node/.openclaw/workspace/morning-report-audio/07-output-rules.md`
 
 ## Final task
 
