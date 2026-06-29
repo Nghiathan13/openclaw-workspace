@@ -1,4 +1,6 @@
-# OpenClaw private/local files
+# OpenClaw customer-specific files
+SOUL.md
+IDENTITY.md
 USER.md
 openclaw-workspace-state.json
 
