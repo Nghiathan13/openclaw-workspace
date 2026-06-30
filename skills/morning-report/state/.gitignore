@@ -1,0 +1,5 @@
+audit.log
+report-history/*
+!report-history/.gitignore
+audio-history/*
+!audio-history/.gitignore

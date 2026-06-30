@@ -211,6 +211,24 @@ Think of it like a human reviewing their journal and updating their mental model
 
 The goal: Be helpful without being annoying. Check in a few times a day, do useful background work, but respect quiet time.
 
+## Morning Report Router
+
+This workspace includes a Morning Report use case.
+
+For any Morning Report request, read and follow the skill router first:
+
+`skills/morning-report/SKILL.md`
+
+Morning Report requests include:
+
+- setup, configure, or enable the daily Morning Report
+- run, generate, preview, test, or manually execute the report
+- view, change, add, remove, replace, or reprioritize report topics
+- inspect current topics, preferences, cron status, or report delivery status
+- troubleshoot why a report or audio summary did not run
+
+Do not route Morning Report requests directly from memory. Use the skill router so the correct workflow file is selected.
+
 ## Make It Yours
 
 This is a starting point. Add your own conventions, style, and rules as you figure out what works.
