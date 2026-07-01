@@ -12,6 +12,8 @@ python3 skills/morning-report/scripts/config_status.py
 
 Use the JSON output as the source of truth for Morning Report state.
 
+`skills/morning-report/state/current-topics.md` is local runtime state and may be absent in a fresh clone. If the helper reports `state.exists: false`, describe Morning Report as not configured yet and route setup requests to `skills/morning-report/prompts/setup.md`.
+
 If scheduler details matter, also read:
 
 - `skills/morning-report/references/cron.md`

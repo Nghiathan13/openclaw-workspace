@@ -12,7 +12,7 @@ python3 skills/morning-report/scripts/config_status.py
 
 Use the JSON output as the source of truth for current topics and report preferences.
 
-If `current-topics.md` contains `Status: not_configured` or the helper reports missing required setup, do not update topics. Ask the user/operator to complete setup first.
+If `current-topics.md` is missing, contains `Status: not_configured`, or the helper reports missing required setup, do not update topics. Ask the user/operator to complete setup first.
 
 ## Supported Intents
 

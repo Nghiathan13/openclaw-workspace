@@ -7,7 +7,7 @@ Do not use this prompt for first-time setup or topic updates.
 ## Read First
 
 - `USER.md`
-- `skills/morning-report/state/current-topics.md`
+- `skills/morning-report/state/current-topics.md` if it exists
 - `skills/morning-report/references/policy.md`
 - `skills/morning-report/references/report-history.md`
 
@@ -25,7 +25,7 @@ If status is not paused/disabled, verify runnable configuration:
 python3 skills/morning-report/scripts/config_status.py --check
 ```
 
-If the helper reports missing required configuration or exits non-zero, stop. Do not search, fetch, analyze, or generate a report. Ask the operator/user to complete setup first.
+If the helper reports missing required configuration, `state.exists: false`, or exits non-zero, stop. Do not search, fetch, analyze, or generate a report. Ask the operator/user to complete setup first.
 
 ## Required State
 

@@ -19,6 +19,7 @@ Do not invent or guess:
 
 ## Setup Safety
 
+- `skills/morning-report/state/current-topics.md` is local runtime state and may be absent in a fresh clone. Treat a missing file as `not_configured`; let `scripts/update_config.py setup` create it after confirmed setup.
 - Do not run the report while `current-topics.md` contains `Status: not_configured`.
 - Do not ask the user to edit code, files, VPS, or Docker.
 - Do not claim cron is enabled unless it was configured and verified.

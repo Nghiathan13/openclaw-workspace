@@ -4,10 +4,10 @@ Select the topics for the current Morning Report run.
 
 ## Read First
 
-- `skills/morning-report/state/current-topics.md`
+- `skills/morning-report/state/current-topics.md` if it exists
 - `skills/morning-report/references/policy.md`
 
-If `current-topics.md` contains `Status: not_configured`, stop. Do not select fallback topics.
+If `current-topics.md` is missing or contains `Status: not_configured`, stop. Do not select fallback topics.
 
 ## Task
 

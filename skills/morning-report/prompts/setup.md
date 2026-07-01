@@ -11,7 +11,7 @@ Do not use this prompt to generate the daily report. Daily report generation is 
 - `USER.md`
 - `IDENTITY.md`
 - `SOUL.md`
-- `skills/morning-report/state/current-topics.md`
+- `skills/morning-report/state/current-topics.md` if it exists
 - `skills/morning-report/references/policy.md`
 - `skills/morning-report/references/cron.md`
 
@@ -22,6 +22,8 @@ python3 skills/morning-report/scripts/config_status.py
 ```
 
 Use existing values from the helper output when they are already clear.
+
+`skills/morning-report/state/current-topics.md` is local runtime state and may not exist in a fresh clone. If the helper reports `state.exists: false` or `state.setup_status: not_configured`, treat setup as incomplete and continue collecting required setup values. Do not ask the customer or operator to create this file manually; `scripts/update_config.py setup` creates it after confirmation.
 
 ## Collect
 
@@ -72,7 +74,7 @@ python3 skills/morning-report/scripts/update_config.py setup \
 
 Repeat `--topic` for multiple active topics. Use `--optional-topic` only for optional topics explicitly provided by the user.
 
-Do not manually rewrite `skills/morning-report/state/current-topics.md` or `USER.md` unless the helper is unavailable. Preserve unrelated content.
+Do not manually rewrite `skills/morning-report/state/current-topics.md` or `USER.md` unless the helper is unavailable. Preserve unrelated content. If `current-topics.md` does not exist yet, let the helper create it.
 
 Set `--user-status enabled` only after cron is configured and verified. If preferences are saved but cron is not enabled, keep `preferences_saved_schedule_pending`.
 

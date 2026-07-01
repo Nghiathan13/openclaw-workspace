@@ -81,7 +81,7 @@ def parse_state(path: Path) -> dict[str, Any]:
     return {
         "path": str(path),
         "exists": path.exists(),
-        "setup_status": status_match.group(1).strip() if status_match else "missing",
+        "setup_status": status_match.group(1).strip() if status_match else "not_configured",
         "active_topics": _numbered_items(_section(text, "Active topics")),
         "optional_topics": _optional_items(_section(text, "Optional topics")),
         "user_priority": _numbered_items(_section(text, "User priority")),

@@ -115,6 +115,37 @@ class ConfigHelperTests(unittest.TestCase):
             self.assertIn("Status: configured", data["missing_required"])
             self.assertIn("Active topics", data["missing_required"])
 
+    def test_missing_state_file_is_treated_as_not_configured(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            state = tmp_path / "current-topics.md"
+            user = tmp_path / "USER.md"
+            user.write_text("# USER\n", encoding="utf-8")
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(STATUS_SCRIPT),
+                    "--state",
+                    str(state),
+                    "--user",
+                    str(user),
+                    "--check",
+                    "--compact",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertNotEqual(result.returncode, 0)
+            data = json.loads(result.stdout)
+            self.assertFalse(data["configured"])
+            self.assertFalse(data["state"]["exists"])
+            self.assertEqual(data["state"]["setup_status"], "not_configured")
+            self.assertIn("state_file", data["missing_required"])
+            self.assertIn("Status: configured", data["missing_required"])
+
 
 if __name__ == "__main__":
     unittest.main()
