@@ -1,3 +1,4 @@
+current-topics.md
 audit.log
 report-history/*
 !report-history/.gitignore
