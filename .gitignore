@@ -1,10 +1,26 @@
-# OpenClaw customer-generated identity files
+# OpenClaw customer-generated identity and memory files
 SOUL.md
 IDENTITY.md
 USER.md
+HEARTBEAT.md
+TOOLS.md
+BOOTSTRAP.md
+MEMORY.md
+memory/
 
 # OpenClaw local state
 openclaw-workspace-state.json
 
-# Customer-specific topic config
+# Local installers and downloaded artifacts
+*.deb
+
+# Python/runtime caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Legacy customer-specific topic config
 morning-report-audio/topics/current-topics.md
