@@ -25,6 +25,16 @@ Use existing values from the helper output when they are already clear.
 
 `skills/morning-report/state/current-topics.md` is local runtime state and may not exist in a fresh clone. If the helper reports `state.exists: false` or `state.setup_status: not_configured`, treat setup as incomplete and continue collecting required setup values. Do not ask the customer or operator to create this file manually; `scripts/update_config.py setup` creates it after confirmation.
 
+For runtime readiness before claiming CLI, path, or audio capability, run:
+
+```bash
+python3 skills/morning-report/scripts/preflight.py --compact
+```
+
+Use the JSON output. If `environment_ok` is false, save preferences as pending and explain what is missing. Do not claim cron, Telegram delivery, or audio is ready from preflight alone; still verify the specific cron/audio step that matters.
+
+Use `--check-cron-status` only when scheduler health itself needs inspection. It does not replace job-level verification in `references/cron.md`.
+
 ## Collect
 
 Collect and confirm these values:
@@ -92,6 +102,7 @@ Setup is complete only when:
 
 - the user confirmed the setup
 - `python3 skills/morning-report/scripts/config_status.py --check` succeeds
+- `python3 skills/morning-report/scripts/preflight.py --compact` reports `environment_ok: true`
 - `USER.md` was updated through the helper
 - cron was configured and verified
 - the user received final confirmation

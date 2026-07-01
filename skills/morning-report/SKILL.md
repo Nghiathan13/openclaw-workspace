@@ -28,7 +28,7 @@ If a topic change is pending and the user sends another settings change instead 
 - Runtime state: `skills/morning-report/state/current-topics.md` (local, git-ignored, created by setup)
 - User preference summary: `USER.md`
 - Runtime artifacts: `skills/morning-report/state/audio-history/`, `skills/morning-report/state/report-history/`, `skills/morning-report/state/audit.log`
-- Helper scripts: `config_status.py`, `update_config.py`, `generate_audio.py`, `record_report.py`, `history_status.py`, `audit_log.py`
+- Helper scripts: `config_status.py`, `preflight.py`, `update_config.py`, `generate_audio.py`, `record_report.py`, `history_status.py`, `audit_log.py`
 
 Do not manually rewrite runtime state, report history, audit log, or audio artifacts when a helper script can perform the update.
 

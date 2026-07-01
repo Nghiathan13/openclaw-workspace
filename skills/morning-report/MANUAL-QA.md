@@ -4,6 +4,7 @@ Run this checklist after major Morning Report prompt or script changes. Pair it 
 
 ```bash
 python3 -m unittest discover skills/morning-report/tests
+python3 skills/morning-report/scripts/preflight.py --compact
 ```
 
 ## Router And Status
@@ -16,6 +17,7 @@ python3 -m unittest discover skills/morning-report/tests
 ## Setup
 
 - [ ] Start from `Status: not_configured` in `state/current-topics.md`.
+- [ ] `scripts/preflight.py --compact` reports runtime readiness without changing report configuration.
 - [ ] Ask the agent to set up Morning Report. It asks only for missing required values.
 - [ ] The setup question uses the user's language.
 - [ ] Before saving, the agent summarizes the full resulting configuration: topics, delivery time, timezone, style, language, audio, and Telegram.

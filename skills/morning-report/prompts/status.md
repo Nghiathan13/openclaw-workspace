@@ -14,6 +14,16 @@ Use the JSON output as the source of truth for Morning Report state.
 
 `skills/morning-report/state/current-topics.md` is local runtime state and may be absent in a fresh clone. If the helper reports `state.exists: false`, describe Morning Report as not configured yet and route setup requests to `skills/morning-report/prompts/setup.md`.
 
+If the user asks whether the runtime is ready, why cron/audio may not work, or whether local dependencies are available, also run:
+
+```bash
+python3 skills/morning-report/scripts/preflight.py --compact
+```
+
+Use `environment_ok`, `ready_to_run`, `problems`, and `warnings` from the JSON output. Do not guess dependency status.
+
+Use `--check-cron-status` only when the user asks about scheduler health or cron troubleshooting. It is read-only and does not replace job-level inspection from `references/cron.md`.
+
 If scheduler details matter, also read:
 
 - `skills/morning-report/references/cron.md`

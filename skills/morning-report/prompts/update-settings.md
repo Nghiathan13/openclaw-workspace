@@ -14,6 +14,14 @@ python3 skills/morning-report/scripts/config_status.py
 
 Use the JSON output as the source of truth for saved configuration. Use conversation history only for unconfirmed pending changes.
 
+If the requested change touches runtime readiness, scheduler behavior, or audio availability, run:
+
+```bash
+python3 skills/morning-report/scripts/preflight.py --compact
+```
+
+Use the JSON output to identify missing local dependencies. Do not claim cron, Telegram delivery, or audio is ready from preflight alone; still verify the specific cron/audio step that matters.
+
 Read:
 
 - `skills/morning-report/references/policy.md`
