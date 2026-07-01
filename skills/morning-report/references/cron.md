@@ -1,18 +1,18 @@
 # Cron Setup
 
-Use Docker Compose for OpenClaw cron commands in this VPS setup.
+Use the native OpenClaw CLI on this Ubuntu VPS.
 
-Default command prefix:
+Command prefix:
 
 ```bash
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli
+openclaw
 ```
 
-If the compose file path or CLI service name differs in the current runtime, use the actual configured value. Do not guess.
+Do not use Docker Compose or `openclaw-cli` in this native setup.
 
-## Known Cron Commands
+Cron commands talk to the OpenClaw Gateway. If a shell command returns `GatewaySecretRefUnavailableError`, do not conclude that cron is missing. Use a gateway-resolved command path, pass a supported `--token`, or ask the operator to fix secret resolution. Do not write tokens or secrets into workspace files.
 
-The operator reported these OpenClaw cron commands:
+## Known Commands
 
 | Command | Purpose |
 |---|---|
@@ -21,25 +21,37 @@ The operator reported these OpenClaw cron commands:
 | `get` | Show one job as JSON |
 | `show` | Show one job in formatted output |
 | `add` | Add a new job |
-| `edit` | Edit job fields through options |
-| `disable` | Pause a job |
-| `enable` | Re-enable a job |
+| `edit` | Patch job fields through options |
+| `disable` | Disable a job |
+| `enable` | Enable a disabled job |
 | `rm` | Remove a job |
 | `run` | Run a job immediately for debugging |
 | `runs` | Show run history |
 
-There is no standalone `wake` command. Wake is an `edit` option:
-
-```bash
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron edit <job-id> --wake now
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron edit <job-id> --wake next-heartbeat
-```
-
 Do not use unknown command names such as `create`, `update`, `remove`, `pause`, or `delete`.
 
-## Edit Options
+There is no standalone `wake` command. Wake is an option on `add` or `edit`:
 
-The operator reported that `cron edit` supports these options:
+```bash
+openclaw cron edit <job-id> --wake now
+openclaw cron edit <job-id> --wake next-heartbeat
+```
+
+## Important Options
+
+Use `openclaw cron add --help` and `openclaw cron edit --help` if exact flags need confirmation.
+
+Common `add` options:
+
+- `--name`, `--cron`, `--tz`, `--message`
+- `--session`, `--session-key`
+- `--channel`, `--to`, `--announce`
+- `--model`, `--thinking`, `--tools`, `--light-context`
+- `--timeout-seconds`
+- `--disabled`
+- `--wake`
+
+Common `edit` options:
 
 - `--name`, `--cron`, `--tz`, `--every`, `--at`
 - `--disable`, `--enable`, `--wake`
@@ -51,24 +63,24 @@ The operator reported that `cron edit` supports these options:
 - `--failure-alert` with sub-options
 - `--delete-after-run`, `--keep-after-run`
 
-Use `cron edit` for schedule patches when the target job is already verified.
+Use `cron edit` for schedule patches after the target job is verified.
 
-## Inspect
+## Inspect First
 
 Before adding, changing, disabling, enabling, removing, or resuming a schedule:
 
 ```bash
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron status
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron list
+openclaw cron status
+openclaw cron list --all
 ```
 
-If a `Morning Report` schedule already exists, do not create a duplicate. Preserve/merge by default.
+If a `Morning Report` schedule already exists, do not create a duplicate. Preserve and patch the existing job by default.
 
 Use `cron get <job-id>` for machine-readable verification and `cron show <job-id>` for human-readable inspection:
 
 ```bash
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron get <job-id>
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron show <job-id>
+openclaw cron get <job-id>
+openclaw cron show <job-id>
 ```
 
 ## Cron Expression
@@ -82,10 +94,10 @@ Convert confirmed delivery time to cron format:
 
 Use `cron add`, not `cron create`.
 
-Before first use, inspect the current runtime's add syntax if exact flags are not already known:
+Before first use, inspect the current CLI syntax if exact flags are not already known:
 
 ```bash
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron add --help
+openclaw cron add --help
 ```
 
 Required Morning Report values for a new job:
@@ -97,10 +109,10 @@ Required Morning Report values for a new job:
 - channel: Telegram
 - target: actual Telegram target, not a placeholder
 
-Command shape, only if supported by the current CLI:
+Command shape:
 
 ```bash
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron add \
+openclaw cron add \
   --name "Morning Report" \
   --cron "<cron-expression>" \
   --tz "<timezone>" \
@@ -111,7 +123,7 @@ docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli
   --to "<telegram-target-id>"
 ```
 
-Do not guess `<telegram-target-id>`. Use the actual Telegram target from the current OpenClaw runtime/session.
+Do not guess `<telegram-target-id>`. Use only the actual Telegram target from the current OpenClaw runtime/session.
 
 ## Edit Or Reschedule
 
@@ -122,10 +134,10 @@ If a `Morning Report` job already exists and the delivery time, timezone, workfl
 3. Patch only the required fields with `cron edit <job-id> ...`.
 4. Verify the edited job with `cron get <job-id>` or `cron show <job-id>`.
 
-Example command shape:
+Example:
 
 ```bash
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron edit <job-id> \
+openclaw cron edit <job-id> \
   --cron "<cron-expression>" \
   --tz "<timezone>"
 ```
@@ -136,11 +148,9 @@ Do not remove and re-add a schedule when `cron edit` can safely patch it.
 
 Use `cron disable <job-id>` to pause a verified job. Use `cron enable <job-id>` to re-enable it.
 
-Equivalent edit options may also exist, but prefer the dedicated commands when available:
-
 ```bash
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron disable <job-id>
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron enable <job-id>
+openclaw cron disable <job-id>
+openclaw cron enable <job-id>
 ```
 
 Before disabling or enabling:
@@ -168,9 +178,9 @@ Before removing:
 After adding, editing, disabling, enabling, removing, or replacing a schedule:
 
 ```bash
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron list
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron get <job-id>
-docker compose -f /home/ubuntu/openclaw/docker-compose.yml run --rm openclaw-cli cron runs --id <job-id>
+openclaw cron list --all
+openclaw cron get <job-id>
+openclaw cron runs --id <job-id>
 ```
 
 For active schedules, treat cron setup as successful only after verification shows:
@@ -207,10 +217,10 @@ If `cron disable` is unavailable or cannot be verified:
 
 For resume/re-enable:
 
-1. Inspect scheduler state.
+1. Inspect scheduler state with `cron list --all`.
 2. If the existing `Morning Report` job exists, enable it with `cron enable <job-id>`.
 3. If no valid job exists, add a new `Morning Report` job using the saved delivery time/timezone and verified Telegram target.
-4. Verify the active schedule with `cron list` and `cron get <job-id>`.
+4. Verify the active schedule with `cron list --all` and `cron get <job-id>`.
 5. Set lifecycle status back to `configured` only after scheduler verification succeeds.
 
-For temporary pause with automatic resume, use only verified runtime support. The reported `wake` capability is an `edit` option, not a standalone command.
+For temporary pause with automatic resume, use only verified runtime support. Wake is an `add` or `edit` option, not a standalone command.
