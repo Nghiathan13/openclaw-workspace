@@ -45,8 +45,12 @@ python3 -m unittest discover skills/morning-report/tests
 
 - [ ] A manual run starts with `scripts/config_status.py --check`.
 - [ ] If required config is missing, the agent stops before search or report generation.
+- [ ] A scheduled/cron run sends no progress or acknowledgement messages before the final report.
+- [ ] A manual test run sends at most one short acknowledgement before work begins.
+- [ ] The agent does not send phase updates such as search progress, composing, audio success, history recording, or delivery status.
 - [ ] The report uses only configured topics, configured language, configured style, and fresh sources from the current run.
 - [ ] The final customer-facing Telegram text starts directly with the report title.
+- [ ] The agent does not send a second summary or recap after the final report unless the user explicitly asks.
 - [ ] After generation, the agent records history with `scripts/record_report.py`.
 
 ## Audio

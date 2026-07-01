@@ -42,6 +42,15 @@ Run only when status shows:
 
 Use only configured values. Do not invent missing values.
 
+## Customer-Visible Messaging
+
+Keep report generation quiet.
+
+- For scheduled/cron runs: do not send progress, acknowledgement, or status messages before the final report.
+- For manual test runs: send at most one short acknowledgement before tool work begins, only if a response is needed to reassure the user. After that, send no customer-visible messages until the final report.
+- Never send phase updates such as "everything checks out", "building the report", "composing the report", "preparing audio", "recording history", or "delivering to Telegram".
+- Keep search plans, source plans, fetch progress, audio generation status, and history recording status internal unless there is a failure the user must know about.
+
 ## Workflow
 
 Read these references in order:
@@ -74,8 +83,8 @@ If audio summary is enabled:
 1. Generate a clean spoken audio script from the final report.
 2. Save only the audio script to a temporary text file.
 3. Run `skills/morning-report/scripts/generate_audio.py` following `skills/morning-report/references/audio-runtime.md`.
-4. Send the text report through Telegram.
-5. When audio generation succeeds, append a standalone `MEDIA:<absolute-mp3-path>` line to the final Telegram output so Telegram attaches the MP3.
+4. Send the final text report through Telegram once.
+5. When audio generation succeeds, append a standalone `MEDIA:<absolute-mp3-path>` line to the same final Telegram output so Telegram attaches the MP3.
 
 Use the actual MP3 path returned by the audio manifest or helper output. For the default command, this is usually:
 
@@ -99,4 +108,4 @@ If report history recording fails, do not block text report delivery. Keep the c
 
 ## Output
 
-Follow `skills/morning-report/references/output-rules.md` exactly. The final Telegram text output must start directly with the report title.
+Follow `skills/morning-report/references/output-rules.md` exactly. The final Telegram text output must start directly with the report title. Do not send a second customer-facing summary after the report unless the user explicitly asks for one.
