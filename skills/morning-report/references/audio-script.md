@@ -8,6 +8,10 @@ Target 3-5 minutes, about 450-750 words depending on the configured report langu
 
 If evidence is weak, stay closer to 3 minutes and state limitations clearly.
 
+At runtime, derive the audio script from the already-delivered text report with `scripts/prepare_audio_script.py`. Do not ask the language model to create a separate audio script after text delivery.
+
+Before generating MP3, validate the script with `generate_audio.py --dry-run`. If the helper reports `length_ok: false` during a scheduled run, do not block the delivered text report. Continue unless the script is empty or invalid.
+
 ## Content
 
 The script should include:

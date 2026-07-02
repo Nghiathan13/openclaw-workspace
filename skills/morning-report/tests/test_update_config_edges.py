@@ -85,6 +85,7 @@ class UpdateConfigEdgeTests(unittest.TestCase):
             )
 
             self.assertEqual(data["state"]["active_topics"], ["AI agents", "Vietnam real estate", "Crypto"])
+            self.assertEqual(data["state"]["preferences"]["Report style"], "concise")
             user_text = (tmp_path / "USER.md").read_text(encoding="utf-8")
             self.assertIn("- Topics: AI agents, Vietnam real estate, Crypto", user_text)
             self.assertEqual(audit_records(tmp_path)[-1]["details"]["active_topics"], data["state"]["active_topics"])
@@ -329,6 +330,70 @@ class UpdateConfigEdgeTests(unittest.TestCase):
             self.assertEqual(state.read_text(encoding="utf-8"), before_state)
             self.assertEqual(user.read_text(encoding="utf-8"), before_user)
             self.assertFalse(audit.exists())
+
+    def test_setup_normalizes_supported_report_style_aliases(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            (tmp_path / "USER.md").write_text("# USER\n", encoding="utf-8")
+
+            data = run_update(
+                tmp_path,
+                "setup",
+                "--topic",
+                "AI agents",
+                "--delivery-time",
+                "7:00 AM",
+                "--timezone",
+                "Asia/Ho_Chi_Minh",
+                "--report-style",
+                "brief",
+                "--report-language",
+                "English",
+                "--audio-summary",
+                "Disabled",
+                "--delivery-channel",
+                "Telegram",
+                "--user-status",
+                "enabled",
+            )
+
+            self.assertEqual(data["state"]["preferences"]["Report style"], "concise")
+            user_text = (tmp_path / "USER.md").read_text(encoding="utf-8")
+            self.assertIn("- Report style: concise", user_text)
+
+    def test_setup_rejects_unsupported_report_style_without_writes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            user = tmp_path / "USER.md"
+            user.write_text("# USER\n", encoding="utf-8")
+
+            result = run_update_result(
+                tmp_path,
+                "setup",
+                "--topic",
+                "AI agents",
+                "--delivery-time",
+                "7:00 AM",
+                "--timezone",
+                "Asia/Ho_Chi_Minh",
+                "--report-style",
+                "story mode",
+                "--report-language",
+                "English",
+                "--audio-summary",
+                "Disabled",
+                "--delivery-channel",
+                "Telegram",
+                "--user-status",
+                "enabled",
+            )
+            error = json.loads(result.stderr)
+
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("unsupported_report_style", error["error"])
+            self.assertFalse((tmp_path / "current-topics.md").exists())
+            self.assertEqual(user.read_text(encoding="utf-8"), "# USER\n")
+            self.assertFalse((tmp_path / "audit.log").exists())
 
 
 if __name__ == "__main__":

@@ -14,6 +14,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from style_utils import report_style_info
+
 SKILL_DIR = Path(__file__).resolve().parent.parent
 WORKSPACE = SKILL_DIR.parent.parent
 DEFAULT_STATE = SKILL_DIR / "state" / "current-topics.md"
@@ -78,6 +80,7 @@ def parse_state(path: Path) -> dict[str, Any]:
     text = path.read_text(encoding="utf-8") if path.exists() else ""
     status_match = re.search(r"^Status:\s*(.+?)\s*$", text, re.MULTILINE)
     prefs = _bullet_map(_section(text, "Report preferences"))
+    style_info = report_style_info(prefs.get("Report style", "")) if prefs.get("Report style") else {}
     return {
         "path": str(path),
         "exists": path.exists(),
@@ -86,6 +89,7 @@ def parse_state(path: Path) -> dict[str, Any]:
         "optional_topics": _optional_items(_section(text, "Optional topics")),
         "user_priority": _numbered_items(_section(text, "User priority")),
         "report_preferences": prefs,
+        "report_style": style_info,
     }
 
 
@@ -114,8 +118,12 @@ def build_status(state_path: Path, user_path: Path) -> dict[str, Any]:
     for key in REQUIRED_PREFS:
         if not prefs.get(key):
             missing.append(key)
+    if prefs.get("Report style") and not state.get("report_style", {}).get("valid"):
+        missing.append("supported Report style")
 
     warnings: list[str] = []
+    if state.get("report_style") and not state["report_style"].get("valid"):
+        warnings.append(state["report_style"].get("error", "unsupported_report_style"))
     user_prefs = user["morning_report_preferences"]
     if user_prefs:
         state_topics = ", ".join(state["active_topics"])

@@ -1,6 +1,6 @@
 # Report Format
 
-Create a concise Telegram-friendly Morning Information Report.
+Create a Telegram-friendly Morning Information Report using the canonical report style from `style-rules.md`.
 
 Use the configured report language from `current-topics.md` for all user-facing report text and section headings.
 
@@ -9,56 +9,36 @@ Use the configured report language from `current-topics.md` for all user-facing 
 - Production report: max 900 words
 - Test report: max 500 words
 - Audio script, when enabled: 3-5 minutes or about 450-750 words
+- `concise` reports should be shorter: target 250-500 words
 
 If evidence is weak, keep the report shorter.
 
 ## Title
 
-Start with:
-
-```md
-# Morning Report — <date>
-```
-
-For test runs:
-
-```md
-# Morning Report — Test — <date>
-```
-
-Use the date format natural for the configured report language.
+Use the style-specific title from `style-rules.md`. Use the date format natural for the configured report language.
 
 ## Required Sections
 
-The report must include these sections in this order. Translate headings into the configured report language.
+Use the style-specific structure from `style-rules.md`. Do not mix sections from different styles unless needed for source accountability or limitations.
 
-1. Quick Summary
-2. Sources Used
-3. Main Analysis
-4. Relevance To You
-5. Actions For Today
-6. Audio Script, only if audio summary is enabled
-7. Limitations
+## Source Accountability
 
-If audio summary is disabled, omit the Audio Script section or state briefly that audio was not requested, depending on the output rules/runtime requirement.
+Every report must make source quality visible.
 
-## Quick Summary
+For `concise` reports:
 
-Write 3-5 concise bullets.
+- include source URLs or source notes inside relevant bullets
+- avoid a large source table unless evidence is complex
 
-Each bullet should include:
+For `deep_analysis` reports:
 
-- the key information
-- why it matters
-- no more than 2 lines
+- use the `Source check` section
 
-Do not include unverified weak/social claims in the quick summary.
+For `opportunities_risks` reports:
 
-## Sources Used
+- include evidence/confidence inside each opportunity or risk when useful
 
-Use a compact table or bullet list suitable for Telegram.
-
-Each source must include:
+When a dedicated source list is used, each source should include:
 
 - URL
 - source type
@@ -110,29 +90,23 @@ Include:
 
 Use only fetched high/medium-confidence sources as main evidence.
 
-## Relevance To You
+## Relevance And Actions
 
 Connect findings to the configured topics and the current user's use case.
 
 Avoid generic advice. Make each point practical.
 
-## Actions For Today
+Include small actions when useful and when the selected style calls for them.
 
-Include exactly 3 small actions when useful.
-
-Format:
-
-```md
-1. Action
-   - Reason:
-   - Expected result:
-```
+For `opportunities_risks`, actions must follow from the listed trigger, condition, risk, or watch signal.
 
 ## Audio Script
 
-Create only when audio summary is enabled. This script is for TTS handoff, not for the customer-facing text report unless the user explicitly asks to see it.
+Do not create or include a separate audio script in the customer-facing report.
 
-Requirements:
+When audio summary is enabled, runtime audio text is derived after text delivery by `scripts/prepare_audio_script.py` from the delivered report.
+
+For audio-friendly reports:
 
 - natural spoken style
 - no tables

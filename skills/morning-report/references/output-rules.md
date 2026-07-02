@@ -1,24 +1,26 @@
 # Output Rules
 
-This file controls the final Telegram output for the Morning Report.
+This file controls the customer-visible Telegram output for the Morning Report.
 
-## Final Output
+## Text Report Message
 
-The final answer must start directly with the report title:
+The text report message must start directly with the report title:
 
 ```md
-# Morning Report — ...
+# <style-specific title> — ...
 ```
 
 For test runs:
 
 ```md
-# Morning Report — Test — ...
+# <style-specific title> — Test — ...
 ```
+
+The allowed title meaning comes from `style-rules.md`: Morning Brief, Morning Analysis, or Opportunities & Risks. Translate the title naturally when the configured report language is not English.
 
 Do not write anything before the title.
 
-If a manual test run already sent one short acknowledgement, the later final report message must still start directly with the report title.
+If a manual test run already sent one short acknowledgement, the later text report message must still start directly with the report title.
 
 Do not include internal logs such as:
 
@@ -36,12 +38,13 @@ Do not expose workflow progress to the customer.
 For scheduled/cron runs:
 
 - send no acknowledgement or progress messages
-- send only the final report and the optional `MEDIA:` directive
+- send the text report first
+- then send only the optional audio `MEDIA:` directive or the short audio-failure notice
 
 For manual test runs:
 
 - at most one short acknowledgement is allowed before work begins
-- after the acknowledgement, send no additional messages until the final report
+- after the acknowledgement, send no additional messages until the text report
 
 Never send customer-visible phase messages such as:
 
@@ -52,7 +55,10 @@ Never send customer-visible phase messages such as:
 - "Let me record the run history"
 - "Now delivering the test report"
 
-After the final report is sent, do not send a second summary, recap, or delivery-status message unless the user explicitly asks. The report itself is the deliverable.
+After the text report is sent, do not send a second summary, recap, or delivery-status message unless the user explicitly asks. The only automatic follow-up messages allowed are:
+
+- a standalone `MEDIA:<path>` directive when audio succeeds
+- one short audio-failure notice when audio was requested but could not be generated
 
 ## Fresh Run
 
@@ -94,12 +100,12 @@ If audio generation fails:
 
 - still send the text report
 - do not claim an MP3 was delivered
-- mention the audio failure briefly after the report or in delivery status
+- send one short audio-failure notice after the report
 - keep any generated history manifest for troubleshooting
 
 ## Telegram Media
 
-If audio summary is enabled and MP3 generation succeeds, the final Telegram output must include one standalone media directive after the text report:
+If audio summary is enabled and MP3 generation succeeds, send one standalone media directive after the text report:
 
 ```text
 MEDIA:<absolute-mp3-path>
@@ -114,10 +120,23 @@ MEDIA:/tmp/morning-report.mp3
 Rules:
 
 - put `MEDIA:` on its own line
+- send it after the text report message
 - use the actual generated MP3 path
 - do not wrap it in Markdown, quotes, or bullets
 - do not include `MEDIA:` when audio is disabled or generation failed
 - do not replace it with a sentence saying the file needs to be sent
+
+## Audio Failure Notice
+
+If audio was requested but failed after the text report was delivered, send one short notice in the configured report language.
+
+Example in English:
+
+```text
+Audio summary could not be generated this time. The text report above was delivered successfully.
+```
+
+Do not include logs, stack traces, provider details, file paths, or retry plans in the customer-facing notice.
 
 ## Telegram Style
 
@@ -135,13 +154,15 @@ Keep output easy to read:
 
 Before sending, verify:
 
-1. output starts with the title
+1. text report starts with the title
 2. configured report language is used
-3. no internal logs or progress messages are included
-4. URLs are complete
-5. weak sources are not used as main evidence
-6. limitations are included
-7. audio content follows the configured audio preference
-8. the full audio script is not included in the customer-facing text report unless requested
-9. successful audio output includes a standalone `MEDIA:<path>` directive
-10. no second summary or delivery-status message is sent after the report
+3. output structure matches the canonical report style
+4. no internal logs or progress messages are included
+5. URLs are complete
+6. weak sources are not used as main evidence
+7. limitations are included
+8. audio content follows the configured audio preference
+9. the full audio script is not included in the customer-facing text report unless requested
+10. text report is sent before audio generation or audio delivery
+11. successful audio output is sent as a standalone `MEDIA:<path>` directive after the text report
+12. audio failure sends one short notice, not a second report summary

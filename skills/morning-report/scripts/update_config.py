@@ -15,6 +15,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from style_utils import normalize_report_style
+
 SKILL_DIR = Path(__file__).resolve().parent.parent
 WORKSPACE = SKILL_DIR.parent.parent
 DEFAULT_STATE = SKILL_DIR / "state" / "current-topics.md"
@@ -213,6 +215,12 @@ def require_runnable_config(state: dict[str, Any]) -> None:
     missing = [key for key in PREF_KEYS if not state.get("preferences", {}).get(key)]
     if missing:
         raise ConfigUpdateError("missing_report_preferences: " + ", ".join(missing))
+    try:
+        state["preferences"]["Report style"] = normalize_report_style(
+            state["preferences"]["Report style"]
+        )
+    except ValueError as exc:
+        raise ConfigUpdateError(str(exc)) from exc
 
 
 def default_user_status_for_state(state_status: str) -> str:

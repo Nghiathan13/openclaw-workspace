@@ -44,7 +44,10 @@ If required setup is missing, ask the user/operator to complete setup first.
 
 - Do not invent missing values.
 - Preserve saved values unless the user explicitly changes them.
+- Normalize report style to `concise`, `deep_analysis`, or `opportunities_risks`. If the requested style is unclear or unsupported, fall back to `concise` as the pending style and ask for confirmation before saving.
+- When deterministic style classification is useful, run `python3 skills/morning-report/scripts/style_utils.py --suggest "<user style text>"`. If the JSON returns `needs_confirmation: true`, use the returned `canonical` value only as a pending value and ask the user to confirm it.
 - A new configuration request is not confirmation for a previous pending change.
+- An unrelated message is not confirmation. Do not save files or change cron until the user clearly confirms the latest full summary.
 - If a change is pending and the user sends another configuration change, merge the requested changes and ask for confirmation again.
 - Do not update files, cron, scheduler, or runtime settings until the user clearly confirms the latest full summary.
 - Do not mention internal model/provider fallback details.
@@ -66,6 +69,8 @@ Before changing files, cron, or scheduler, summarize the full resulting configur
 - Morning Report status when lifecycle status changes
 
 For every changed field, show `current -> requested`. For every unchanged field, show the resulting value. Do not use vague phrases like "other settings stay the same."
+
+Show report style as the canonical value that will be saved.
 
 Ask the user to confirm whether to apply the full configuration.
 
@@ -108,6 +113,8 @@ Choose `--user-status` carefully:
 - Use `paused` when Morning Report is intentionally paused.
 - Use `preferences_saved_schedule_pending` only while a required cron/scheduler change has not been verified.
 - If delivery time or timezone changed, save preferences as pending if needed, edit the schedule with `cron edit` using `skills/morning-report/references/cron.md`, verify it, then save the same resulting configuration again with `--user-status "enabled"`.
+
+The helper normalizes supported report style aliases. If it returns `unsupported_report_style`, do not save or change cron; propose `concise` as the fallback and ask the user to confirm before applying it.
 
 For pause/disable:
 

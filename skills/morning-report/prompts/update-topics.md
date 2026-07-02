@@ -32,6 +32,7 @@ If `current-topics.md` is missing, contains `Status: not_configured`, or the hel
 - Preserve existing report preferences unless the user explicitly asks to change them.
 - If the request includes delivery time, timezone, report language, report style, audio preference, delivery channel, cron, scheduler, or multiple configuration fields, stop this prompt and follow `skills/morning-report/prompts/update-settings.md` instead.
 - If a topic change is pending and the user sends another configuration change instead of a clear confirmation, merge the pending topic change with the new request through `skills/morning-report/prompts/update-settings.md` and ask for confirmation again.
+- If a topic change is pending and the user sends an unrelated message, do not save files. Answer briefly if appropriate, then remind them that the topic update still needs confirmation.
 - Confirm before replacing all topics, removing topics, or reprioritizing topics.
 - Do not remove the final active topic. If the requested removal would leave no active topics, ask whether the user wants to replace it with another topic or disable Morning Report explicitly.
 - If the request is unclear, ask one short clarification question before editing files.
@@ -83,8 +84,18 @@ If the check fails, explain what is missing instead of claiming the update is co
 After saving a topic update, tell the user:
 
 - the topic change was saved
+- what changed: previous active topics -> new active topics
 - the new active topics
 - the new optional topics, if any
+- the full resulting configuration: delivery time, timezone, report style, report language, audio summary, delivery channel
 - the change will apply to the next scheduled Morning Report
 
+Use wording that matches the action:
+
+- added: "Topic added."
+- replaced: "Topics replaced."
+- removed: "Topic removed."
+- reprioritized: "Topic priority updated."
+
+Do not send a second recap after this final response.
 Do not mention internal model/provider fallback details.

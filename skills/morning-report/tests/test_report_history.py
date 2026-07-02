@@ -47,7 +47,7 @@ class ReportHistoryTests(unittest.TestCase):
                     "--report-style",
                     "Concise",
                     "--report-language",
-                    "Vietnamese",
+                    "English",
                     "--audio-summary",
                     "Disabled",
                     "--delivery-channel",

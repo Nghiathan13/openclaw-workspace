@@ -42,11 +42,27 @@ Collect and confirm these values:
 1. Daily topics to follow
 2. Morning delivery time
 3. Timezone
-4. Report style
+4. Report style: `concise`, `deep_analysis`, or `opportunities_risks`
 5. Report language
 6. Audio summary preference
 
 Ask only for missing values. Use the user's language. Do not ask the customer to edit files, code, Docker, or VPS settings.
+
+The user may describe report style naturally. Map style requests through the helper-supported aliases:
+
+- short, brief, quick, summary, concise -> `concise`
+- detailed, full, analyst, explain more, deep analysis -> `deep_analysis`
+- risks, opportunities, strategy, decision, action oriented -> `opportunities_risks`
+
+If the style is unclear or unsupported, fall back to `concise` as the pending style and ask for confirmation before saving. Use wording like: "I will use `concise` for a short, easy-to-scan report. Is that what you mean?" Offer `deep_analysis` and `opportunities_risks` only as alternatives. The fallback itself is not confirmation.
+
+When deterministic style classification is useful, run:
+
+```bash
+python3 skills/morning-report/scripts/style_utils.py --suggest "<user style text>"
+```
+
+If the JSON returns `needs_confirmation: true`, use the returned `canonical` value only as a pending value and ask the user to confirm it.
 
 ## Confirm Before Changes
 
@@ -62,7 +78,11 @@ Before changing files or cron, summarize the full resulting configuration:
 
 For changed fields, show `current -> requested` when there is an existing saved value. For unchanged fields, still show the resulting value. Do not use vague phrases like "other settings stay the same."
 
+Show report style as the canonical value that will be saved.
+
 If the user sends another configuration change instead of confirming, merge it into the pending setup summary and ask for confirmation again. A new configuration request is not confirmation.
+
+If the user sends an unrelated message while setup confirmation is pending, do not save files or change cron. Answer briefly if appropriate, then remind them that the Morning Report setup still needs confirmation.
 
 Continue only after the user clearly confirms the latest full summary.
 
@@ -87,6 +107,8 @@ Repeat `--topic` for multiple active topics. Use `--optional-topic` only for opt
 Do not manually rewrite `skills/morning-report/state/current-topics.md` or `USER.md` unless the helper is unavailable. Preserve unrelated content. If `current-topics.md` does not exist yet, let the helper create it.
 
 Set `--user-status enabled` only after cron is configured and verified. If preferences are saved but cron is not enabled, keep `preferences_saved_schedule_pending`.
+
+The helper normalizes supported report style aliases to canonical values. If it returns `unsupported_report_style`, treat that as an unconfirmed style value: do not save or change cron; propose `concise` as the fallback and ask for confirmation.
 
 ## Schedule
 

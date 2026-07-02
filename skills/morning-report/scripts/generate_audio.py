@@ -26,19 +26,19 @@ DEFAULT_HISTORY_DIR = SKILL_DIR / "state" / "audio-history"
 GOOGLE_TTS_URL = "https://translate.google.com/translate_tts"
 DEFAULT_CHUNK_LIMIT = 180
 DEFAULT_TIMEOUT_SECONDS = 45
+DEFAULT_MIN_WORDS = 450
+DEFAULT_MAX_WORDS = 750
+DEFAULT_WORDS_PER_MINUTE = 150
 DEFAULT_USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/126.0 Safari/537.36"
 )
 SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?。！？])\s+")
 NATURAL_BREAK_RE = re.compile(r"([,;:，；：、])")
+WORD_RE = re.compile(r"\b[\w']+\b", re.UNICODE)
 LANG_ALIASES = {
     "vietnamese": "vi",
-    "vietnam": "vi",
-    "tieng viet": "vi",
-    "viet nam": "vi",
     "english": "en",
-    "tieng anh": "en",
     "japanese": "ja",
     "korean": "ko",
     "chinese": "zh-CN",
@@ -61,6 +61,29 @@ def normalize_text(text: str) -> str:
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n{2,}", "\n", text)
     return text.strip()
+
+
+def count_words(text: str) -> int:
+    return len(WORD_RE.findall(text))
+
+
+def audio_length_info(text: str, min_words: int, max_words: int, wpm: int) -> dict[str, Any]:
+    word_count = count_words(text)
+    estimated_minutes = round(word_count / wpm, 2) if wpm > 0 else None
+    warnings: list[str] = []
+    if min_words > 0 and word_count < min_words:
+        warnings.append(f"under_min_words: {word_count} < {min_words}")
+    if max_words > 0 and word_count > max_words:
+        warnings.append(f"over_max_words: {word_count} > {max_words}")
+    return {
+        "word_count": word_count,
+        "estimated_minutes": estimated_minutes,
+        "target_min_words": min_words,
+        "target_max_words": max_words,
+        "words_per_minute": wpm,
+        "length_ok": not warnings,
+        "length_warnings": warnings,
+    }
 
 
 def split_sentences(paragraph: str) -> list[str]:
@@ -333,11 +356,19 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--text-file", required=True, help="Text file to synthesize, or '-' for stdin")
     parser.add_argument("--output", help="Final MP3 output path. Defaults to the history run directory")
     parser.add_argument("--history-dir", default=str(DEFAULT_HISTORY_DIR), help="Audio history directory")
-    parser.add_argument("--lang", default="vi", help="Google TTS language code, for example vi or en")
+    parser.add_argument(
+        "--lang",
+        required=True,
+        help="Configured report language or Google TTS language code, for example English or en",
+    )
     parser.add_argument("--chunk-limit", type=int, default=DEFAULT_CHUNK_LIMIT, help="Max characters per TTS request")
     parser.add_argument("--transport", choices=["auto", "curl", "urllib"], default="auto")
     parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT_SECONDS)
     parser.add_argument("--retries", type=int, default=2, help="curl retry count")
+    parser.add_argument("--min-words", type=int, default=DEFAULT_MIN_WORDS)
+    parser.add_argument("--max-words", type=int, default=DEFAULT_MAX_WORDS)
+    parser.add_argument("--wpm", type=int, default=DEFAULT_WORDS_PER_MINUTE, help="Words per minute for duration estimate")
+    parser.add_argument("--strict-length", action="store_true", help="Fail when text is outside the target word range")
     parser.add_argument("--dry-run", action="store_true", help="Split text and print planned chunks without calling TTS")
     return parser
 
@@ -354,6 +385,9 @@ def main() -> int:
         chunks = split_text(text, args.chunk_limit)
         transport = choose_transport(args.transport)
         lang = normalize_lang(args.lang)
+        length = audio_length_info(text, args.min_words, args.max_words, args.wpm)
+        if args.strict_length and not length["length_ok"]:
+            raise ValueError("audio_length_out_of_range: " + "; ".join(length["length_warnings"]))
 
         if args.dry_run:
             print(
@@ -366,6 +400,7 @@ def main() -> int:
                         "chunk_limit": args.chunk_limit,
                         "chunk_count": len(chunks),
                         "char_count": len(text),
+                        **length,
                         "chunks": chunks,
                     },
                     ensure_ascii=False,
@@ -421,6 +456,7 @@ def main() -> int:
             "merge_method": merge_method,
             "input_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
             "char_count": len(text),
+            **length,
             "chunk_count": len(chunks),
             "history_dir": str(run_dir),
             "history_audio": str(history_output),

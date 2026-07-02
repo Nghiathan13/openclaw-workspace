@@ -23,17 +23,50 @@ Do not send the full 3-5 minute script in one request.
 
 ## Command
 
-Write the clean spoken script to a temporary text file, then run:
+Derive the clean spoken script from the already-delivered text report. Do not ask the language model to write a second audio script after the text report has been sent.
+
+```bash
+python3 skills/morning-report/scripts/prepare_audio_script.py \
+  --report-file /tmp/morning-report.md \
+  --output /tmp/morning-report-audio.txt \
+  --max-words 750
+```
+
+Then validate chunking and target duration without calling TTS:
+
+```bash
+python3 skills/morning-report/scripts/generate_audio.py \
+  --text-file /tmp/morning-report-audio.txt \
+  --lang "<configured-report-language>" \
+  --chunk-limit 180 \
+  --dry-run
+```
+
+The dry-run JSON includes:
+
+- `word_count`
+- `estimated_minutes`
+- `length_ok`
+- `length_warnings`
+- `chunk_count`
+
+If `length_ok` is false, do not block the already-delivered text report. For scheduled runs, continue with TTS unless the audio script is empty or invalid. For manual operator testing, mention the length warning only if the operator asks.
+
+Then run:
 
 ```bash
 python3 skills/morning-report/scripts/generate_audio.py \
   --text-file /tmp/morning-report-audio.txt \
   --output /tmp/morning-report.mp3 \
-  --lang vi \
+  --lang "<configured-report-language>" \
   --chunk-limit 180
 ```
 
-Use the configured report language for `--lang`. The helper accepts common names such as `Vietnamese` or `English`, and also accepts codes such as `vi` or `en`.
+Replace `<configured-report-language>` with the configured `Report language` from `skills/morning-report/state/current-topics.md` or `config_status.py`.
+
+Do not copy a language from examples, previous runs, topic names, user chat language, or the VPS locale. The audio language must follow the configured report language for this run.
+
+The helper accepts common English language names and language codes, such as `English`, `en`, `Japanese`, or `ja`.
 
 ## History
 
@@ -55,7 +88,7 @@ Do not manually edit history files during normal report generation. Use `manifes
 
 ## Telegram Delivery
 
-When audio generation succeeds and the delivery channel is Telegram, attach the MP3 by adding a standalone media directive to the final output:
+When audio generation succeeds and the delivery channel is Telegram, attach the MP3 by sending a standalone media directive after the text report message:
 
 ```text
 MEDIA:<absolute-mp3-path>
@@ -79,8 +112,8 @@ Audio generation is optional relative to the text report.
 
 If audio generation fails:
 
-- still send the text Morning Report
+- keep the already-sent text Morning Report as successful delivery
 - do not claim audio was delivered
 - do not emit a `MEDIA:` directive for a missing or failed MP3
-- mention briefly that audio generation failed
+- send one short customer-visible notice in the configured report language that audio generation failed this time
 - preserve the history manifest if one was created
